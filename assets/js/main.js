@@ -138,13 +138,33 @@ Vue.createApp({
             pairedCard:[],
             gameResult: {
               win : false,
+              lost :false,
+            },
+            gameData:{
+              badSelect : 10
             }
         }
+    },
+    watch: {
+      "gameData.badSelect" :function(newval){
+          if(newval <= 0 ){
+            this.gameResult = {
+              win:false,
+              lost :true,
+            }
+          }
+      }
     },
     computed :{
         coveredCard(){
             let coveredCard = this.cards.filter((card) =>
                 !this.unCoveredCard.includes(card))
+            if(coveredCard.length === 0){
+              this.gameResult = {
+                win :true,
+                lost:false,
+              }
+            }
             return coveredCard
         },
         unCoveredCard(){
@@ -160,11 +180,27 @@ Vue.createApp({
                 if(card1.id === card2.id){
                    this.pairedCard.push(card1)
                    this.pairedCard.push(card2)
+                }else{
+                  this.gameData ={
+                    badSelect : this.gameData.badSelect - 1
+                  }
                 }
                 setTimeout(() => {
                     this.selectCard = []
                 }, 800)
             }
+        },
+        handleResetGame(){
+          this.cards = this.cards.sort(()=> Math.random() - 0.5)
+          this.selectCard = []
+          this.pairedCard = []
+          this.gameResult = {
+            win :false,
+            lost : false,
+          }
+          this.gameData = {
+            badSelect : 10
+          }
         }
     }
 }).mount("#app")
